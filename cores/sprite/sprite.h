@@ -1,25 +1,25 @@
 /**
- * Copyright (c) 2014 panStamp <contact@panstamp.com>
+ * Copyright (c) 2016 Zac Manchester
  * 
- * This file is part of the panStamp project.
+ * This file is part of the KickSat project.
  * 
- * panStamp  is free software; you can redistribute it and/or modify
+ * Arduino-Sprite is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * any later version.
  * 
- * panStamp is distributed in the hope that it will be useful,
+ * Arduino-Sprite is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with panStamp; if not, write to the Free Software
+ * along with Arduino-Sprite; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 
  * USA
  * 
- * Author: Daniel Berenguer
- * Creation date: 06/03/2013
+ * Author: Zac Manchester
+ * Creation date: 06/25/2016
  */
 
 #ifndef _SPRITE_H
@@ -30,6 +30,8 @@
 #include "cc430radio.h"
 #include "wiring.h"
 #include "storage.h"
+
+#define LED 23
 
 /**
  * RTC definitions
