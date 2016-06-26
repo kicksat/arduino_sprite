@@ -16,12 +16,12 @@
         {
           "name":"Sprite w/ CC430F5137",
           "architecture":"msp430",
-          "version":"0.1.0",
+          "version":"0.1.1",
           "category":"Sprite",
-          "url":"https://kicksat.github.io/arduino_sprite/releases/arduino-sprite-0.1.0.tar.gz",
-          "archiveFileName":"arduino-sprite-0.1.0.tar.gz",
-          "checksum":"SHA-256:aaa487ed524ada8a1c644306447756fa5a6fbb39447173698aa4262e73fd4d32",
-          "size":"6672711",
+          "url":"https://kicksat.github.io/arduino_sprite/releases/arduino-sprite-0.1.1.tar.gz",
+          "archiveFileName":"arduino-sprite-0.1.1.tar.gz",
+          "checksum":"SHA-256:c6498449cf9b999279bd5991b3f0569cd6fd30b29952ff1f7b0b206199f1706b",
+          "size":"6683317",
           "help":
           {
             "online":"https://github.com/kicksat/sprite/wiki"
