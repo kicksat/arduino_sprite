@@ -209,7 +209,7 @@ char SpriteRadio::fecEncode(char data)
 
 void SpriteRadio::transmit(char bytes[], unsigned int length)
 {
-#ifdef SR_DEMO_MODE
+#ifdef SR_DEBUG_MODE
 
 	for(unsigned int k = 0; k < length; ++k)
 	{
@@ -319,7 +319,7 @@ void SpriteRadio::beginRawTransmit(unsigned char bytes[], unsigned int length) {
 
 		while(bytes_to_go)
 		{
-			delay(1); //Wait for some bytes to be transmitted
+			delayMicroseconds(1000); //Wait for some bytes to be transmitted
 
 			bytes_free = Sprite.radio.strobe(RF_SNOP) & 0x0F;
 			bytes_to_write = bytes_free < bytes_to_go ? bytes_free : bytes_to_go;
@@ -343,7 +343,7 @@ void SpriteRadio::continueRawTransmit(unsigned char bytes[], unsigned int length
 	{
 		while(bytes_to_go)
 		{
-			delay(1); //Wait for some bytes to be transmitted
+			delayMicroseconds(1000); //Wait for some bytes to be transmitted
 
 			bytes_free = Sprite.radio.strobe(RF_SNOP) & 0x0F;
 			bytes_to_write = bytes_free < bytes_to_go ? bytes_free : bytes_to_go;
@@ -357,7 +357,7 @@ void SpriteRadio::continueRawTransmit(unsigned char bytes[], unsigned int length
 	{
 		while(bytes_to_go)
 		{
-			delay(1); //Wait for some bytes to be transmitted
+			delayMicroseconds(1000); //Wait for some bytes to be transmitted
 
 			bytes_free = Sprite.radio.strobe(RF_SNOP) & 0x0F;
 			bytes_to_write = bytes_free < bytes_to_go ? bytes_free : bytes_to_go;

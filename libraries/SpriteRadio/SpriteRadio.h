@@ -8,7 +8,7 @@
 #ifndef SpriteRadio_h
 #define SpriteRadio_h
 
-#define SR_DEMO_MODE
+#define SR_DEBUG_MODE 1
 
 #define PRN_LENGTH_BYTES 64
 
