@@ -3,7 +3,7 @@
 menu.rfloader=Wireless bootloader
 
 ##############################################################
-sprite2.name=Sprite 2 w/ cc430f5137
+sprite2.name=Sprite 2
 sprite2.build.core=sprite
 sprite2.upload.tool=ti-bsl
 sprite2.upload.protocol=ti-bsl

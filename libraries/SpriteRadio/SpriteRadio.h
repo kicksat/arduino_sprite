@@ -12,7 +12,7 @@
 
 #define PRN_LENGTH_BYTES 64
 
-#include "utility/CC430Radio.h"
+#include "cc430radio.h"
 
 class SpriteRadio {
   public:

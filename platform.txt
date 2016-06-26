@@ -1,5 +1,5 @@
 
-# panStamp NRG Core and platform.
+# Sprite Core and Platform.
 # ------------------------------
 
 # For more info:

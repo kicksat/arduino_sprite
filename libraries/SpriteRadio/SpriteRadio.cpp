@@ -5,10 +5,10 @@
 
 */
 
+#include "wiring.h"
+#include "sprite.h"
 #include "SpriteRadio.h"
-#include "utility/CC430Radio.h"
 #include "cc430f5137.h"
-// #include "Energia.h"
 
 SpriteRadio::SpriteRadio(unsigned char prn0[], unsigned char prn1[]) {
 	
@@ -211,7 +211,7 @@ void SpriteRadio::transmit(char bytes[], unsigned int length)
 {
 #ifdef SR_DEMO_MODE
 
-	for(int k = 0; k < length; ++k)
+	for(unsigned int k = 0; k < length; ++k)
 	{
 		transmitByte(bytes[k]);
 		delay(1000);
@@ -221,7 +221,7 @@ void SpriteRadio::transmit(char bytes[], unsigned int length)
 
 	delay(random(0, 2000));
 
-	for(int k = 0; k < length; ++k)
+	for(unsigned int k = 0; k < length; ++k)
 	{
 		transmitByte(bytes[k]);
 
@@ -286,45 +286,45 @@ void SpriteRadio::beginRawTransmit(unsigned char bytes[], unsigned int length) {
 	char status;
 
 	//Wait for radio to be in idle state
-	status = Radio.strobe(RF_SIDLE);
+	status = Sprite.radio.strobe(RF_SIDLE);
 	while (status & 0xF0)
 	{
-		status = Radio.strobe(RF_SNOP);
+		status = Sprite.radio.strobe(RF_SNOP);
 	}
 	
 	//Clear TX FIFO
-	status = Radio.strobe(RF_SFTX);
+	status = Sprite.radio.strobe(RF_SFTX);
 
 	if(length <= 64)
 	{
-		Radio.writeTXBuffer(bytes, length); //Write bytes to transmit buffer
-		status = Radio.strobe(RF_STX);  //Turn on transmitter
+		Sprite.radio.writeTXBuffer(bytes, length); //Write bytes to transmit buffer
+		status = Sprite.radio.strobe(RF_STX);  //Turn on transmitter
 	}
 	else
 	{
 		unsigned char bytes_free, bytes_to_write;
 	  	unsigned int bytes_to_go, counter;
 		
-		Radio.writeTXBuffer(bytes, 64); //Write first 64 bytes to transmit buffer
+		Sprite.radio.writeTXBuffer(bytes, 64); //Write first 64 bytes to transmit buffer
 		bytes_to_go = length - 64;
 		counter = 64;
 
-		status = Radio.strobe(RF_STX);  //Turn on transmitter
+		status = Sprite.radio.strobe(RF_STX);  //Turn on transmitter
 
 		//Wait for oscillator to stabilize
 		while (status & 0xC0)
 		{
-			status = Radio.strobe(RF_SNOP);
+			status = Sprite.radio.strobe(RF_SNOP);
 		}
 
 		while(bytes_to_go)
 		{
 			delay(1); //Wait for some bytes to be transmitted
 
-			bytes_free = Radio.strobe(RF_SNOP) & 0x0F;
+			bytes_free = Sprite.radio.strobe(RF_SNOP) & 0x0F;
 			bytes_to_write = bytes_free < bytes_to_go ? bytes_free : bytes_to_go;
 
-			Radio.writeTXBuffer(bytes+counter, bytes_to_write);
+			Sprite.radio.writeTXBuffer(bytes+counter, bytes_to_write);
 			bytes_to_go -= bytes_to_write;
 			counter += bytes_to_write;
 		}
@@ -345,10 +345,10 @@ void SpriteRadio::continueRawTransmit(unsigned char bytes[], unsigned int length
 		{
 			delay(1); //Wait for some bytes to be transmitted
 
-			bytes_free = Radio.strobe(RF_SNOP) & 0x0F;
+			bytes_free = Sprite.radio.strobe(RF_SNOP) & 0x0F;
 			bytes_to_write = bytes_free < bytes_to_go ? bytes_free : bytes_to_go;
 
-			Radio.writeTXBuffer(bytes+counter, bytes_to_write);
+			Sprite.radio.writeTXBuffer(bytes+counter, bytes_to_write);
 			bytes_to_go -= bytes_to_write;
 			counter += bytes_to_write;
 		}
@@ -359,10 +359,10 @@ void SpriteRadio::continueRawTransmit(unsigned char bytes[], unsigned int length
 		{
 			delay(1); //Wait for some bytes to be transmitted
 
-			bytes_free = Radio.strobe(RF_SNOP) & 0x0F;
+			bytes_free = Sprite.radio.strobe(RF_SNOP) & 0x0F;
 			bytes_to_write = bytes_free < bytes_to_go ? bytes_free : bytes_to_go;
 
-			Radio.writeTXBufferZeros(bytes_to_write);
+			Sprite.radio.writeTXBufferZeros(bytes_to_write);
 			bytes_to_go -= bytes_to_write;
 			counter += bytes_to_write;
 		}
@@ -373,14 +373,14 @@ void SpriteRadio::continueRawTransmit(unsigned char bytes[], unsigned int length
 
 void SpriteRadio::endRawTransmit() {
 
-	char status = Radio.strobe(RF_SNOP);
+	char status = Sprite.radio.strobe(RF_SNOP);
 
 	//Wait for transmission to finish
 	while(status != 0x7F)
 	{
-		status = Radio.strobe(RF_SNOP);
+		status = Sprite.radio.strobe(RF_SNOP);
 	}
-	Radio.strobe(RF_SIDLE); //Put radio back in idle mode
+	Sprite.radio.strobe(RF_SIDLE); //Put radio back in idle mode
 	return;
 }
 
@@ -388,19 +388,19 @@ void SpriteRadio::txInit() {
 	
 	char status;
 
-	Radio.reset();
-	Radio.writeConfiguration(&m_settings);  // Write settings to configuration registers
-	Radio.writePATable(m_power);
+	Sprite.radio.reset();
+	Sprite.radio.writeConfiguration(&m_settings);  // Write settings to configuration registers
+	Sprite.radio.writePATable(m_power);
 
 	//Put radio into idle state
-	status = Radio.strobe(RF_SIDLE);
+	status = Sprite.radio.strobe(RF_SIDLE);
 	while (status & 0xF0)
 	{
-	  status = Radio.strobe(RF_SNOP);
+	  status = Sprite.radio.strobe(RF_SNOP);
 	}
 }
 
 void SpriteRadio::sleep() {
 	
-	Radio.strobe(RF_SIDLE); //Put radio back in idle mode
+	Sprite.radio.strobe(RF_SIDLE); //Put radio back in idle mode
 }
