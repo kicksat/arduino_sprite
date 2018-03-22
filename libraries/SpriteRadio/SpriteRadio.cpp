@@ -10,23 +10,26 @@
 #include "SpriteRadio.h"
 #include "cc430f5137.h"
 
-SpriteRadio::SpriteRadio(unsigned char prn0[], unsigned char prn1[]) {
+unsigned char SpriteRadio::m_phi0[BIT_LENGTH] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+unsigned char SpriteRadio::m_phi1[BIT_LENGTH] = {0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+SpriteRadio::SpriteRadio() {
 	
-	m_power = 0xC3;
-	
+	m_power = 0xC0;
+
 	m_settings = (CC1101Settings){
-	    0x0E,   // FSCTRL1
+	    0x0C,   // FSCTRL1
 		0x00,   // FSCTRL0
 		0x10,   // FREQ2
 		0xD1,   // FREQ1
 		0x21,   // FREQ0
-		0x0B,   // MDMCFG4
-		0x43,   // MDMCFG3
-		0x70,   // MDMCFG2
-		0x02,   // MDMCFG1
-		0xF8,   // MDMCFG0
+		0xF9,   // MDMCFG4
+		0x83,   // MDMCFG3
+		0x73,   // MDMCFG2
+		0x20,   // MDMCFG1
+		0x00,   // MDMCFG0
 		0x00,   // CHANNR
-		0x07,   // DEVIATN
+		0x50,   // DEVIATN
 		0xB6,   // FREND1
 		0x10,   // FREND0
 		0x18,   // MCSM0
@@ -35,7 +38,7 @@ SpriteRadio::SpriteRadio(unsigned char prn0[], unsigned char prn1[]) {
 		0xC7,   // AGCCTRL2
 		0x00,   // AGCCTRL1
 		0xB0,   // AGCCTRL0
-		0xEA,   // FSCAL3
+		0xE9,   // FSCAL3
 		0x2A,   // FSCAL2
 		0x00,   // FSCAL1
 		0x1F,   // FSCAL0
@@ -51,24 +54,12 @@ SpriteRadio::SpriteRadio(unsigned char prn0[], unsigned char prn1[]) {
 		0x00,   // ADDR      Device address.
 		0xFF    // PKTLEN    Packet Length (Bytes)
 	};
-
-	m_prn0 = prn0;
-	m_prn1 = prn1;
-
-	//Initialize random number generator
-	randomSeed(((int)m_prn0[0]) + ((int)m_prn1[0]) + ((int)m_prn0[1]) + ((int)m_prn1[1]));
 }
 
-SpriteRadio::SpriteRadio(unsigned char prn0[], unsigned char prn1[], CC1101Settings settings) {
+SpriteRadio::SpriteRadio(CC1101Settings settings) {
 	
 	m_power = 0xC0;
 	m_settings = settings;
-	
-	m_prn0 = prn0;
-	m_prn1 = prn1;
-
-	//Initialize random number generator
-	randomSeed(((int)m_prn0[0]) + ((int)m_prn1[0]) + ((int)m_prn0[1]) + ((int)m_prn1[1]));
 }
 
 // Set the output power of the transmitter.
@@ -176,104 +167,53 @@ void SpriteRadio::setPower(int tx_power_dbm) {
 			m_power = 0x03;
 			break;
 		default:
-			m_power = 0xC3; // 10 dBm
+			m_power = 0xC0; // 10 dBm
 		}
-}
-
-char SpriteRadio::fecEncode(char data)
-{
-  	//Calculate parity bits using a (16,8,5) block code
-  	//given by the following generator matrix:
-	/*unsigned char G[8][16] = {
-  		{1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-  		{0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-  		{1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0},
-  		{0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0},
-  		{0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0},
-  		{1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-  		{0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
-  		{1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1}};*/
-
-  	char p = 0;
-  	p |= (((data&BIT7)>>7)^((data&BIT5)>>5)^((data&BIT2)>>2)^(data&BIT0))<<7;
-  	p |= (((data&BIT6)>>6)^((data&BIT5)>>5)^((data&BIT4)>>4)^((data&BIT2)>>2)^((data&BIT1)>>1)^(data&BIT0))<<6;
-  	p |= (((data&BIT4)>>4)^((data&BIT3)>>3)^((data&BIT2)>>2)^((data&BIT1)>>1))<<5;
-  	p |= (((data&BIT7)>>7)^((data&BIT3)>>3)^((data&BIT2)>>2)^((data&BIT1)>>1)^(data&BIT0))<<4;
-  	p |= (((data&BIT7)>>7)^((data&BIT6)>>6)^((data&BIT5)>>5)^((data&BIT1)>>1))<<3;
-  	p |= (((data&BIT7)>>7)^((data&BIT6)>>6)^((data&BIT5)>>5)^((data&BIT4)>>4)^(data&BIT0))<<2;
-  	p |= (((data&BIT7)>>7)^((data&BIT6)>>6)^((data&BIT4)>>4)^((data&BIT3)>>3)^((data&BIT2)>>2)^(data&BIT0))<<1;
-  	p |= (((data&BIT5)>>5)^((data&BIT4)>>4)^((data&BIT3)>>3)^(data&BIT0));
-
-  	return p;
 }
 
 void SpriteRadio::transmit(char bytes[], unsigned int length)
 {
-#ifdef SR_DEBUG_MODE
+	//Transmit 2-byte preamble (0x5558 = 0b0101010101011000)
+	beginRawTransmit(m_phi0, BIT_LENGTH);
+	continueRawTransmit(m_phi1, BIT_LENGTH);
+	continueRawTransmit(m_phi1, BIT_LENGTH);
+	continueRawTransmit(m_phi1, BIT_LENGTH);
+	continueRawTransmit(m_phi1, BIT_LENGTH);
+	continueRawTransmit(m_phi1, BIT_LENGTH);
+	continueRawTransmit(m_phi1, BIT_LENGTH);
+	continueRawTransmit(m_phi1, BIT_LENGTH);
+	continueRawTransmit(m_phi1, BIT_LENGTH);
+	continueRawTransmit(m_phi1, BIT_LENGTH);
+	continueRawTransmit(m_phi1, BIT_LENGTH);
+	continueRawTransmit(m_phi1, BIT_LENGTH);
+	continueRawTransmit(m_phi0, BIT_LENGTH);
+	continueRawTransmit(m_phi1, BIT_LENGTH);
+	continueRawTransmit(m_phi0, BIT_LENGTH);
+	continueRawTransmit(m_phi0, BIT_LENGTH);
 
-	for(unsigned int k = 0; k < length; ++k)
-	{
-		transmitByte(bytes[k]);
-		delay(1000);
+	//Transmit payload
+	char last_bit = 0x00;
+	for(unsigned int k = 0; k < length; ++k) {
+		last_bit = transmitByte((unsigned char)bytes[k], last_bit);
 	}
-
-#else
-
-	delay(random(0, 2000));
-
-	for(unsigned int k = 0; k < length; ++k)
-	{
-		transmitByte(bytes[k]);
-
-		delay(random(8000, 12000));
-	}
-
-#endif
-}
-
-void SpriteRadio::transmitByte(char byte)
-{
-	char parity = fecEncode(byte);
-
-	//Transmit preamble (1110010)
-	beginRawTransmit(m_prn1,PRN_LENGTH_BYTES);
-	continueRawTransmit(m_prn1,PRN_LENGTH_BYTES);
-	continueRawTransmit(m_prn1,PRN_LENGTH_BYTES);
-	continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	continueRawTransmit(m_prn1,PRN_LENGTH_BYTES);
-	continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-
-	//Transmit parity byte
-	parity & BIT7 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	parity & BIT6 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	parity & BIT5 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	parity & BIT4 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	parity & BIT3 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	parity & BIT2 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	parity & BIT1 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	parity & BIT0 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	
-	//Transmit data byte
-	byte & BIT7 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	byte & BIT6 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	byte & BIT5 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	byte & BIT4 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	byte & BIT3 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	byte & BIT2 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	byte & BIT1 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	byte & BIT0 ? continueRawTransmit(m_prn1,PRN_LENGTH_BYTES) : continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-
-	//Transmit postamble (1011000)
-	continueRawTransmit(m_prn1,PRN_LENGTH_BYTES);
-	continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	continueRawTransmit(m_prn1,PRN_LENGTH_BYTES);
-	continueRawTransmit(m_prn1,PRN_LENGTH_BYTES);
-	continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
-	continueRawTransmit(m_prn0,PRN_LENGTH_BYTES);
 
 	endRawTransmit();
+}
+
+unsigned char SpriteRadio::transmitByte(unsigned char byte, unsigned char last_bit)
+{
+	unsigned char this_bit;
+	for(unsigned int k = 7; k >=0; --k) {
+		this_bit = (byte >> k) & 0x01;
+		if(this_bit ^ last_bit) {
+			continueRawTransmit(m_phi1, BIT_LENGTH);
+		} else {
+			continueRawTransmit(m_phi0, BIT_LENGTH);
+		}
+		last_bit = this_bit;
+	}
+
+	return last_bit;
 }
 
 void SpriteRadio::rawTransmit(unsigned char bytes[], unsigned int length) {
@@ -283,7 +223,7 @@ void SpriteRadio::rawTransmit(unsigned char bytes[], unsigned int length) {
 }
 
 void SpriteRadio::beginRawTransmit(unsigned char bytes[], unsigned int length) {
-	char status;
+	unsigned char status;
 
 	//Wait for radio to be in idle state
 	status = Sprite.radio.strobe(RF_SIDLE);
@@ -373,7 +313,7 @@ void SpriteRadio::continueRawTransmit(unsigned char bytes[], unsigned int length
 
 void SpriteRadio::endRawTransmit() {
 
-	char status = Sprite.radio.strobe(RF_SNOP);
+	unsigned char status = Sprite.radio.strobe(RF_SNOP);
 
 	//Wait for transmission to finish
 	while(status != 0x7F)
@@ -386,7 +326,7 @@ void SpriteRadio::endRawTransmit() {
 
 void SpriteRadio::txInit() {
 	
-	char status;
+	unsigned char status;
 
 	Sprite.radio.reset();
 	Sprite.radio.writeConfiguration(&m_settings);  // Write settings to configuration registers
