@@ -31,8 +31,6 @@
 #include "wiring.h"
 #include "storage.h"
 
-#define LED 23
-
 /**
  * RTC definitions
  */
