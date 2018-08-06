@@ -1,6 +1,6 @@
 ## Instructions to update KickSat boards (on Windows)
 
-1. Pack the sprites board folder into a zip file in "sprite_boards.X.X.zip", replacing X.X with the version number
+1. Pack this repo into a zip file in "sprite_boards.X.X.zip", replacing X.X with the version number
 2. Move the file "sprite_boards.X.X.zip" to "/BoardManager-ArduinoIDE/IDE_BoardManager/"
 3. Open file properties to determine the fize size in bytes, then add that info into the JSON file: "package_sprites_index.json", under "platforms">>"size"
 4. In Windows PowerShell, type: "Get-FileHash -Path kicksat_boards.X.X.zip -Algorithm SHA256 | Format-List" (without quotes and replacing X.X with the version number), then update that info into the JSON file: "package_sprites_index.json", under "platforms">>"checksum"
